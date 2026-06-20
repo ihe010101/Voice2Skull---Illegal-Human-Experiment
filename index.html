@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voice2Skull Gallery</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08090d;
+      --panel: #11141b;
+      --panel2: #171b24;
+      --text: #f2f5fb;
+      --muted: #98a2b3;
+      --line: rgba(255,255,255,.1);
+      --brand: #28d4a3;
+      --blue: #6aa9ff;
+      font-family: Inter, system-ui, Segoe UI, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; color: inherit; background: transparent; }
+
+    .landing {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background:
+        linear-gradient(90deg, rgba(8,9,13,.94), rgba(8,9,13,.68) 52%, rgba(8,9,13,.28)),
+        url("LandingPage.png") center/cover;
+    }
+    .landing header, .topbar {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px clamp(18px, 5vw, 64px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 8px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--brand), var(--blue)); color: #06100d;
+    }
+    .landing-content {
+      width: min(920px, calc(100% - 36px));
+      align-self: center;
+      padding: 9vh 0 14vh clamp(0px, 5vw, 64px);
+    }
+    .kicker { color: var(--brand); font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 800px; margin: 18px 0 0; font-size: clamp(3rem, 8vw, 7rem); line-height: .92; letter-spacing: 0; }
+    .landing p { max-width: 610px; color: #d5dce8; font-size: clamp(1rem, 2vw, 1.24rem); line-height: 1.65; margin: 24px 0 32px; }
+    .primary {
+      display: inline-flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 22px;
+      border-radius: 8px; background: var(--text); color: #08090d; font-weight: 900;
+      box-shadow: 0 24px 80px rgba(0,0,0,.42);
+    }
+
+    .app { min-height: 100vh; display: none; grid-template-rows: auto 1fr; background: rgba(8,9,13,.97); }
+    .app.is-active { display: grid; }
+    .landing.is-hidden { display: none; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); background: rgba(8,9,13,.88); backdrop-filter: blur(16px); }
+    .searchbox { flex: 1; max-width: 480px; }
+    .searchbox input { width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: #0d1017; color: var(--text); outline: 0; }
+    .icon { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 8px; display: grid; place-items: center; background: var(--panel2); }
+    .icon:hover, .icon.is-on { color: var(--brand); border-color: rgba(40,212,163,.58); }
+
+    .layout { width: min(1560px, 100%); margin: 0 auto; padding: 22px clamp(14px, 3vw, 32px) 34px; display: grid; grid-template-columns: minmax(0, 1fr) 390px; gap: 22px; }
+    .stage { min-width: 0; display: grid; grid-template-rows: minmax(300px, calc(100vh - 220px)) auto; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #050608; box-shadow: 0 24px 80px rgba(0,0,0,.42); }
+    .viewer { min-height: 300px; position: relative; display: grid; place-items: center; background: radial-gradient(circle at 30% 20%, rgba(106,169,255,.16), transparent 32%), linear-gradient(135deg, #06080d, #10131b); }
+    .viewer video, .viewer img, .viewer iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .viewer video, .viewer img { object-fit: contain; background: #050608; }
+    .blog-preview { width: 100%; height: 100%; display: grid; place-items: center; padding: 24px; background: linear-gradient(135deg, rgba(5,6,8,.84), rgba(16,19,27,.64)), var(--blog-poster) center/cover; }
+    .blog-panel { width: min(560px, 100%); border: 1px solid var(--line); border-radius: 8px; padding: 24px; background: rgba(17,20,27,.9); box-shadow: 0 24px 80px rgba(0,0,0,.42); }
+    .blog-panel h3 { margin: 0 0 10px; font-size: clamp(1.25rem, 2vw, 1.9rem); line-height: 1.2; }
+    .blog-panel p { margin: 0 0 18px; color: var(--muted); line-height: 1.6; }
+    .blog-panel a { display: inline-flex; min-height: 44px; align-items: center; padding: 0 16px; border-radius: 8px; background: var(--text); color: #08090d; font-weight: 900; text-decoration: none; }
+    .badge { position: absolute; z-index: 2; top: 16px; left: 16px; padding: 9px 12px; border-radius: 8px; background: rgba(40,212,163,.92); color: #08100d; font-size: .82rem; font-weight: 900; text-transform: uppercase; }
+    .info { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; padding: 18px; border-top: 1px solid var(--line); background: var(--panel); }
+    .info h2 { margin: 0 0 6px; font-size: clamp(1.25rem, 2vw, 1.85rem); }
+    .meta { color: var(--muted); display: flex; flex-wrap: wrap; gap: 10px; }
+    .controls { display: flex; gap: 8px; }
+
+    .side { display: grid; gap: 16px; align-content: start; }
+    .filters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+    .filter { min-height: 38px; border-radius: 7px; color: var(--muted); font-weight: 900; }
+    .filter.is-active { background: var(--text); color: #08090d; }
+    .queue { display: grid; gap: 10px; max-height: calc(100vh - 178px); overflow: auto; padding-right: 4px; }
+    .card { display: grid; grid-template-columns: 108px 1fr; gap: 12px; min-height: 92px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: rgba(17,20,27,.82); text-align: left; }
+    .card:hover, .card.is-selected { border-color: rgba(106,169,255,.65); background: #181d27; }
+    .thumb { height: 76px; border-radius: 7px; overflow: hidden; position: relative; background: #080a10; }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .chip { position: absolute; left: 6px; bottom: 6px; padding: 4px 7px; border-radius: 6px; background: rgba(0,0,0,.72); font-size: .7rem; font-weight: 900; text-transform: uppercase; }
+    .card h3 { margin: 2px 0 7px; font-size: .98rem; line-height: 1.25; }
+    .card p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.35; }
+    .empty { display: none; color: var(--muted); padding: 24px; border: 1px dashed var(--line); border-radius: 8px; text-align: center; }
+    .empty.is-visible { display: block; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .stage { grid-template-rows: minmax(280px, 54vh) auto; }
+      .queue { max-height: none; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    }
+    @media (max-width: 680px) {
+      .topbar { flex-wrap: wrap; }
+      .searchbox { order: 3; flex-basis: 100%; max-width: none; }
+      .landing-content { padding: 8vh 18px 12vh; }
+      .info { grid-template-columns: 1fr; }
+      .controls { justify-content: space-between; }
+      .filters { grid-template-columns: repeat(2, 1fr); }
+      .card { grid-template-columns: 96px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <section class="landing" id="landing">
+    <header><div class="brand"><span class="brand-mark">▶</span><span>Voice2Skull</span></div></header>
+    <main class="landing-content">
+      <div class="kicker">Directed Energy Weapon</div>
+      <h1>Watch, view, and read all about V2K.</h1>
+      <p>V2K, or Voice to Skull, is a technology that involves transmitting sound directly to a person's brain without ordinary speakers or headphones. This includes covert mind control, remote harassment, or continuous speech transmission into someone’s head.</p>
+      <button class="primary" id="enterBtn">▶Enter Gallery</button>
+    </main>
+  </section>
+
+  <section class="app" id="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">▶</span><span>Voice2Skull</span></div>
+      <label class="searchbox"><input id="searchInput" type="search" placeholder="Search gallery"></label>
+      <button class="icon" id="homeBtn" title="Back to landing">⌂</button>
+    </header>
+    <main class="layout">
+      <section class="stage">
+        <div class="viewer" id="viewer"><span class="badge" id="badge">video</span></div>
+        <div class="info">
+          <div><h2 id="itemTitle"></h2><div class="meta"><span id="itemType"></span><span id="itemSize"></span><span id="itemDate"></span></div></div>
+          <div class="controls">
+            <button class="icon" id="prevBtn" title="Previous">◀</button>
+            <button class="icon" id="playBtn" title="Play video"></button>
+            <button class="icon" id="nextBtn" title="Next">▶</button>
+            <button class="icon" id="favBtn" title="Favorite">♡</button>
+            <button class="icon" id="fullBtn" title="Fullscreen"></button>
+          </div>
+        </div>
+      </section>
+      <aside class="side">
+        <div class="filters">
+          <button class="filter is-active" data-filter="all">All</button>
+          <button class="filter" data-filter="video">Videos</button>
+          <button class="filter" data-filter="photo">Photos</button>
+          <button class="filter" data-filter="blog">Blogs</button>
+        </div>
+        <div class="queue" id="queue"></div>
+        <div class="empty" id="emptyState">No matching media found.</div>
+      </aside>
+    </main>
+  </section>
+
+  <script>
+    const items = [
+      { id: 1, type: "video", title: "Illegal Human Experiment by Govt of India", size: "MP4 - Online", date: "Video", source: "https://drive.google.com/file/d/1QE23tQUwSZBaw2WYoaWXqC6gaISUMAdO/view?usp=drive_link", description: "Online video playback inside the main player." }, 
+{ id: 2, type: "video", title: "Manand Pokharkar Victim Illegal Human Experiment", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1v9aEHO8_flAjXoiQ-BvIGhj6IzVJSrii/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 3, type: "video", title: "CIA agents suspect they were attacked with microwave weapon in Australia ｜ ABC News [W4bwYT9z26A]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1qCQOBB-Y1mumtKCkq9d1jEW8ULsCtQ6t/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 4, type: "video", title: "Electronic Harassment： Voices in My Mind [JmE4oTXYmf4].mp4", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/13INokf47Ry8ycaj_7xAl0QAjeLLguX8a/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 5, type: "video", title: "Officials say 130 suspected victims of possible energy weapon [QUXnDbCIW8s]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1HLNGiuT65q_w286x5ms4ZuICXnZ-52ia/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 6, type: "video", title: "Remote neural monitoring basic description [urDTs9UQpQA]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1lSMKUNV15TFBbk8Rqmc-4eElQrFEfwHf/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 7, type: "video", title: "Targeted Individaul in India： Human Torture： Saroja 2019_Jan, Radiations to body, lasering MindContl [CHgWZAPcHU8]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1Vj4C_cwrKMvKJR1ZBrubAwtYfDQA0H3V/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 8, type: "video", title: "Targeted Individual 2021Feb, Society of safe Bharath, Covert Remote crime Human Rights violatn India [SI8KoIipEYE]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1FZTtK5jf_uE-H8thriEofbiaw7f579Ul/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 9, type: "video", title: "Targeted individual Gangstalking crime, Targeted individual India [RPYitgjlpz8]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1d0cGNckYX_PkBiZ9vZlzWLnE_WsxCWmL/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 10, type: "video", title: "Targeted Individual in India ： Deepti 2019_Sep： Remote torture： Synthetic Telepathy, voices [6GTswDaN2YQ]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1K67oYvCdKJMcbwAsQK0KvLSS0HQIxsFv/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 11, type: "video", title: "Targeted Individual in India ： SudeepDG 2019_Sep Remote Neural Monitoring, No touch torture [wN5SEkoo_tI]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/10OH98HTV9zFqAjnUWGLmSnT3cq--wFLO/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 12, type: "video", title: "Targeted individual in India ： Vineetha 2019_Sep Remote Neural Monitoring, Remote body assaulting [ipp9jv4Pvxc]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1QJCEAhmJmQ8MPRy-yLs2rM4oX2KApEbt/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 13, type: "video", title: "Targeted Individual in India： Dinesh 2019_Sep Remote Neural Monitoring, Mind Control, Voices inbrain [oH0NKF0wmlk]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1IJWgWFNtEEu0AoGh7bmMvUbsOuk6GBpl/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 14, type: "video", title: "Targeted Individual in India： Ganesh 2019_Sep ： Remote torture , Remote neural monitoring, MindCntol [CCI42b-JKqo]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1w8Qx4j2azhmKYqPbq6vaETWsB_l9fv7I/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 15, type: "video", title: "Targeted Individual in India： Kunal2019_Sep ：Remote torture , Remote Neural Monitoring ,GangStalking [pl3q-zMzasM]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1unJvEcacRMDCmkqkT0WJEhQwk5dlKR2g/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 16, type: "video", title: "Targeted Individual in India： Makrand 2019Jan, Gang Stalking, Remote  Neural Monitoring [-uo1kqyPut4]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1onsUiIowBU_kWkeW3Xu0-zTBnQ8KlwiE/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 17, type: "video", title: "Targeted Individual in India： Rajiv 2019_Jan, Remote Neural Monitoring, Mind control, Privt assaults [EfmXAf9mp1c]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1JcDqKVhYkWMRaJ6alw-fhQTxIrPUsN8l/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 18, type: "video", title: "Targeted Individual_2019 India, ＂Society of safe Bharath against Covert torture and Energy weapons＂ [xrSO5OVkqBo]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1ymH8-BDKmSYngbVWbXk22c_TbO2vBOcX/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 19, type: "video", title: "Targeted Individual, India, 2020 Dec, Society of safe Bharath [AABIzwbPtoE]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1c6AY9sU0Pesq_AnvKNuGyDynHJbje-Kp/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 20, type: "video", title: "The Gang Stalking Program Explained - Remote Neural Monitoring - Targeted Individual  - Mind Wars [KsqxwPsaNKQ]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1lP5fccdfp4kHgMCN74Lj9xFkTGzhIcGg/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 21, type: "video", title: "What you need to know about directed-energy attacks [uSkY2Ue3w88]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1bNMFZYEZODBv_PZzXgUsymUYWqOX7tXW/view?usp=drive_link", description: "Short online motion clip." },
+{ id: 22, type: "video", title: "Targeted Individual in India： Sathish 2019_Jan： Remote human torture, Electronic harassment [rt2P6eu6Ca4]", size: "MP4 - Online", date: "Loop", source: "https://drive.google.com/file/d/1BSrFRqgqs-Bg9yZ-1t4h6_b4HGZRS5YA/view?usp=drive_link", description: "Short online motion clip." },
+
+
+      { id: 23, type: "photo", title: "Voice2Skull", size: "Photo - Online", date: "Image", source: "", poster: "", description: "Photo preview using the same large media stage." },
+
+
+      { id: 24, type: "blog", title: "WHAT is a Voice to Skull (V2K) - Smart Hearing system  Audio manipulations", size: "External Blog", date: "Readable", description: "External blog article preview.", source: "https://www.mind-control.net/voice-to-skull-v2k" },
+      { id: 25, type: "blog", title: "What Is Voice to Skull? The Real Science Behind V2K", size: "External Blog", date: "Readable", description: "External blog article preview.", source: "https://scienceinsights.org/what-is-voice-to-skull-the-real-science-behind-v2k/" },
+      { id: 26, type: "blog", title: "Voice to Skull Technology and Electronic Harassment : V2K Targeting", size: "External Blog", date: "Readable", description: "External blog article preview.", source: "https://www.jlegal.org/blog/voice-to-skull-technology-and-electronic-harassment/" },
+      { id: 27, type: "blog", title: "Advanced Applications and Military Use of Voice-to-Skull (V2K) Technology: Evidence and Implications", size: "External Blog", date: "Readable", description: "External blog article preview.", source: "https://medium.com/@barrandodger/voice-to-skull-v2k-technology-often-referred-to-as-synthetic-telepathy-allows-auditory-345a976c1fb5" },
+      { id: 28, type: "blog", title: "\"VOICE OF GOD\" WEAPON: Harassment via Audio Hallucinations for MIND CONTROL [PART 2]", size: "External Blog", date: "Readable", description: "External blog article preview.", source: "https://chemtrails.substack.com/p/v2k-part-2-voice-2-skull-technology" },
+
+
+   ];
+    const $ = id => document.getElementById(id);
+    const landing = $("landing"), app = $("app"), viewer = $("viewer"), queue = $("queue"), badge = $("badge");
+    const favorites = new Set();
+    let activeIndex = 0, activeFilter = "all";
+
+    function googleDriveId(url) {
+      if (!url || !url.includes("drive.google.com")) return "";
+      const patterns = [
+        /\/file\/d\/([^/]+)/,
+        /[?&]id=([^&]+)/,
+        /\/open\?id=([^&]+)/
+      ];
+      for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return decodeURIComponent(match[1]);
+      }
+      return "";
+    }
+    function drivePreviewUrl(url) {
+      const id = googleDriveId(url);
+      return id ? `https://drive.google.com/file/d/${id}/preview` : url;
+    }
+    function driveThumbUrl(url, size = 600) {
+      const id = googleDriveId(url);
+      return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w${size}` : "";
+    }
+    function posterFor(item) {
+      return item.poster || driveThumbUrl(item.source) || "";
+    }
+    function isDrive(item) {
+      return Boolean(googleDriveId(item.source));
+    }
+    function filtered() {
+      const term = $("searchInput").value.trim().toLowerCase();
+      return items.filter(item => (activeFilter === "all" || item.type === activeFilter) && (!term || `${item.title} ${item.type} ${item.description}`.toLowerCase().includes(term)));
+    }
+    function show(item) {
+      viewer.innerHTML = "";
+      viewer.appendChild(badge);
+      badge.textContent = item.type;
+      if (isDrive(item)) {
+        const frame = document.createElement("iframe");
+        frame.title = item.title;
+        frame.src = drivePreviewUrl(item.source);
+        frame.allow = "autoplay; fullscreen";
+        frame.allowFullscreen = true;
+        viewer.appendChild(frame);
+      } else if (item.type === "video") {
+        const video = document.createElement("video");
+        video.src = item.source; video.poster = item.poster; video.controls = true; video.playsInline = true; video.preload = "metadata";
+        viewer.appendChild(video);
+      } else if (item.type === "photo") {
+        const img = document.createElement("img");
+        img.src = item.source; img.alt = item.title; viewer.appendChild(img);
+      } else if (item.type === "blog") {
+        const preview = document.createElement("div");
+        preview.className = "blog-preview";
+        preview.style.setProperty("--blog-poster", `url("${posterFor(item)}")`);
+        preview.innerHTML = `<div class="blog-panel"><h3>${item.title}</h3><p>${item.description}</p><a href="${item.source}" target="_blank" rel="noopener">Open Blog</a></div>`;
+        viewer.appendChild(preview);
+      } else {
+        const frame = document.createElement("iframe");
+        frame.title = item.title;
+        if (item.source) {
+          frame.src = item.source;
+        } else {
+          frame.srcdoc = item.document;
+        }
+        viewer.appendChild(frame);
+      }
+      $("itemTitle").textContent = item.title;
+      $("itemType").textContent = item.type.toUpperCase();
+      $("itemSize").textContent = item.size;
+      $("itemDate").textContent = item.date;
+      $("favBtn").classList.toggle("is-on", favorites.has(item.id));
+    }
+    function renderQueue() {
+      const list = filtered();
+      queue.innerHTML = "";
+      $("emptyState").classList.toggle("is-visible", list.length === 0);
+      list.forEach(item => {
+        const card = document.createElement("button");
+        card.className = `card ${items[activeIndex].id === item.id ? "is-selected" : ""}`;
+        card.innerHTML = `<span class="thumb"><img src="${posterFor(item)}" alt=""><span class="chip">${item.type}</span></span><span><h3>${item.title}</h3><p>${item.description}</p></span>`;
+        card.onclick = () => { activeIndex = items.findIndex(entry => entry.id === item.id); render(); };
+        queue.appendChild(card);
+      });
+    }
+    function render() { show(items[activeIndex]); renderQueue(); }
+    function move(step) {
+      const list = filtered();
+      if (!list.length) return;
+      const current = list.findIndex(item => item.id === items[activeIndex].id);
+      const next = list[((current < 0 ? 0 : current) + step + list.length) % list.length];
+      activeIndex = items.findIndex(item => item.id === next.id);
+      render();
+    }
+    $("enterBtn").onclick = () => { landing.classList.add("is-hidden"); app.classList.add("is-active"); render(); };
+    $("homeBtn").onclick = () => { app.classList.remove("is-active"); landing.classList.remove("is-hidden"); };
+    $("prevBtn").onclick = () => move(-1);
+    $("nextBtn").onclick = () => move(1);
+    $("playBtn").onclick = () => { const video = viewer.querySelector("video"); if (video) video.paused ? video.play() : video.pause(); };
+    $("favBtn").onclick = () => { const id = items[activeIndex].id; favorites.has(id) ? favorites.delete(id) : favorites.add(id); render(); };
+    $("fullBtn").onclick = () => document.fullscreenElement ? document.exitFullscreen() : viewer.requestFullscreen?.();
+    document.querySelectorAll(".filter").forEach(button => button.onclick = () => {
+      document.querySelectorAll(".filter").forEach(item => item.classList.remove("is-active"));
+      button.classList.add("is-active"); activeFilter = button.dataset.filter;
+      const list = filtered(); if (list.length && !list.some(item => item.id === items[activeIndex].id)) activeIndex = items.findIndex(item => item.id === list[0].id);
+      render();
+    });
+    $("searchInput").oninput = () => {
+      const list = filtered(); if (list.length && !list.some(item => item.id === items[activeIndex].id)) activeIndex = items.findIndex(item => item.id === list[0].id);
+      render();
+    };
+  </script>
+</body>
+</html>
